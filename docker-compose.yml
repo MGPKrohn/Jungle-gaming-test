@@ -1,0 +1,45 @@
+name: jungle-gaming
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-wallet}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wallet}
+      POSTGRES_DB: ${POSTGRES_DB:-wallet}
+    command: ["postgres", "-c", "max_connections=200"]
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  aws:
+    image: ministackorg/ministack:latest
+    ports:
+      - "${AWS_PORT:-4566}:4566"
+
+  aws-init:
+    image: ministackorg/ministack:latest
+    network_mode: "service:aws"
+    depends_on:
+      aws:
+        condition: service_healthy
+    restart: "no"
+    environment:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: us-east-1
+    volumes:
+      - ./infra/aws/init:/init:ro
+    entrypoint:
+      - bash
+      - -c
+      - until aws --endpoint-url http://localhost:4566 sqs list-queues >/dev/null 2>&1; do sleep 1; done; bash /init/01-create-queues.sh
+
+volumes:
+  postgres-data:
