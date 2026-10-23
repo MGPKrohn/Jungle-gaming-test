@@ -1,8 +1,5 @@
 # Wallet / Wagering — Jungle Gaming
-
-Sistema financeiro de apostas: recebe transações de provedores (BET, WIN, LOSS, REFUND, ROLLBACK),
-movimenta o saldo das wallets e mantém um **ledger imutável e auditável**. O foco é a correção sob
-concorrência, mensagens duplicadas e falhas — não um CRUD. As decisões estão em [`ARCHITECTURE.md`](ARCHITECTURE.md).
+As decisões estão em [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 **Stack:** Bun 1.x · TypeScript estrito · NestJS · PostgreSQL 17 · MikroORM 7 · SQS (MiniStack) · Docker Compose.
 
